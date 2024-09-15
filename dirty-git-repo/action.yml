@@ -1,0 +1,35 @@
+name: Check for Changes
+description: 'Action to check if git repository is dirty (changed) or not'
+author: https://github.com/ErShakirAnsari
+
+inputs:
+  directory:
+    description: 'Repository to check for changes'
+    required: true
+    default: '.'
+
+outputs:
+  dirty:
+    description: 'Indicates if the repository has uncommitted changes'
+    value: ${{ steps.check-changes.outputs.dirty }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Echo inputs
+      shell: bash
+      run: |
+        echo "inputs.directory = [${{ inputs.directory }}]"
+
+
+    - name: Check for Changes
+      shell: bash
+      id: check-changes
+      run: |
+        if [ -n "$(git -C ${{ inputs.directory }} status --porcelain)" ]; then
+          echo "Repository is dirty"
+          echo "dirty=true" >> $GITHUB_OUTPUT
+        else
+          echo "Repository is clean"
+          echo "dirty=false" >> $GITHUB_OUTPUT
+        fi
